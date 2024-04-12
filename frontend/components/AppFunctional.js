@@ -1,5 +1,6 @@
 import React from 'react'
 import { useState} from 'react'
+import axios from 'axios'
 
 // Suggested initial states
 const initialMessage = ''
@@ -7,11 +8,13 @@ const initialEmail = ''
 const initialSteps = 0
 const initialIndex = 4 // the index the "B" is at
 
+
 export default function AppFunctional(props) {
   const [message, setMessage] = useState(initialMessage);
   const [email, setEmail] = useState(initialEmail);
   const [steps, setSteps] = useState(initialSteps);
-  const [index, setIndex] = useState(initialIndex);// THE FOLLOWING HELPERS ARE JUST RECOMMENDATIONS.
+  const [index, setIndex] = useState(initialIndex);
+  const [messages, setMessages]=useState(initialMessage)// THE FOLLOWING HELPERS ARE JUST RECOMMENDATIONS.
   // You can delete them and build your own logic from scratch.
 
   function getXY() {
@@ -60,8 +63,11 @@ export default function AppFunctional(props) {
     const newIndex = getNextIndex(direction);
     if (newIndex !== index) {
       setSteps(steps + 1);
+      setMessage(initialMessage)
       setIndex(newIndex);
-    } // This event handler can use the helper above to obtain a new index for the "B",
+    } else {
+      setMessage(`You can't go ${direction}`)
+    }// This event handler can use the helper above to obtain a new index for the "B",
     // and change any states accordingly.
   }
 
@@ -78,25 +84,22 @@ export default function AppFunctional(props) {
     steps,
     email
   };
-  fetch('http://localhost:9000/api/result', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(payload)
-  })
+  axios.post('http://localhost:9000/api/result', payload)
   .then(response => {
-    if (!response.ok) {
-      throw new Error('Failed to submit data');
-    }
-    setMessage('Data submitted successfully');
-    setEmail('');
-    setSteps(0);
-    setIndex(initialIndex);
+    
+    setMessage(response.message);
+    
   })
   .catch(error => {
-    setMessage(`Ouch: email is required.`);
-  }); // Use a POST request to send a payload to the server.
+    console.log(error)
+    setMessage(error.response.message);
+    
+  }).finally (()=>{
+    setEmail(initialEmail)
+    setIndex(initialIndex)
+    setSteps(initialSteps)
+
+  }) // Use a POST request to send a payload to the server.
   }
 
   return (
