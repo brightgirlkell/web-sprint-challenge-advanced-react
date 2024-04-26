@@ -23,7 +23,7 @@ export default function AppFunctional(props) {
   }
 
   function getXYMessage() {
-    const { x, y } = getXY(index);
+    const { x, y } = getXY();
     return `Coordinates (${x + 1}, ${y + 1})`;// It it not necessary to have a state to track the "Coordinates (2, 2)" message for the user.
     // You can use the `getXY` helper above to obtain the coordinates, and then `getXYMessage`
     // returns the fully constructed string.
@@ -87,16 +87,15 @@ export default function AppFunctional(props) {
   axios.post('http://localhost:9000/api/result', payload)
   .then(response => {
     
-    setMessage(response.message);
+    setMessage(response.data.message);
     
   })
   .catch(error => {
     console.log(error)
-    setMessage(error.response.message);
+    setMessage(error.response.data.message);
     
   }).finally (()=>{
-    setEmail(initialEmail)
-    setIndex(initialIndex)
+    setIndex(initialIndex);
     setSteps(initialSteps)
 
   }) // Use a POST request to send a payload to the server.
@@ -106,7 +105,7 @@ export default function AppFunctional(props) {
     <div id="wrapper" className={props.className}>
       <div className="info">
         <h3 id="coordinates">{getXYMessage()}</h3>
-        <h3 id="steps">You moved {steps} times</h3>
+        <h3 id="steps">{`You moved ${steps} time${steps === 1 ? '':'s'}`}</h3>
       </div>
       <div id="grid">
         {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (
