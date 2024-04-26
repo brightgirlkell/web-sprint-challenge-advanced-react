@@ -95,8 +95,8 @@ export default function AppFunctional(props) {
     setMessage(error.response.data.message);
     
   }).finally (()=>{
-    setIndex(initialIndex);
-    setSteps(initialSteps)
+  
+    setEmail(initialEmail);
 
   }) // Use a POST request to send a payload to the server.
   }
