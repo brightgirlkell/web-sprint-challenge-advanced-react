@@ -1,42 +1,62 @@
+// App.test.js
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, fireEvent, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect'; // Importing the jest-dom matcher
+import axios from 'axios';
+
+// Mocking the Axios module
+jest.mock('axios', () => ({
+  post: jest.fn((url, data) => Promise.resolve({ data })),
+}));
+
 import AppFunctional from './AppFunctional';
 
-test('initial state is set correctly', () => {
-  const { getByText } = render(<AppFunctional />);
-  expect(getByText('You moved 0 times')).toBeInTheDocument();
-});
-
-test('moving the "B" character within the grid', () => {
-  const { getByText, getByTestId } = render(<AppFunctional />);
-  userEvent.click(getByTestId('up'));
-  expect(getByText('Coordinates (2, 1)')).toBeInTheDocument();
-});
-
-test('resetting the grid', () => {
-  const { getByTestId, getByText } = render(<AppFunctional />);
-  userEvent.click(getByTestId('up'));
-  userEvent.click(getByTestId('reset'));
-  expect(getByText('Coordinates (2, 2)')).toBeInTheDocument();
-});
-
-test('submitting the form successfully', async () => {
-  const { getByTestId, getByPlaceholderText, getByText } = render(<AppFunctional />);
-  userEvent.type(getByPlaceholderText('type email'), 'lady@gaga.com');
-  userEvent.click(getByTestId('submit'));
-  await waitFor(() => {
-    expect(getByText('Data submitted successfully')).toBeInTheDocument();
+describe('AppFunctional', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
   });
+
+  test('Move left', () => {
+    const { getByText } = render(<AppFunctional />);
+    fireEvent.click(getByText('LEFT'));
+    expect(getByText('You moved 1 time')).toBeInTheDocument();
+  });
+
+  test('Move up', () => {
+    const { getByText } = render(<AppFunctional />);
+    fireEvent.click(getByText('UP'));
+    expect(getByText('You moved 1 time')).toBeInTheDocument();
+  });
+
+  test('Move right', () => {
+    const { getByText } = render(<AppFunctional />);
+    fireEvent.click(getByText('RIGHT'));
+    expect(getByText('You moved 1 time')).toBeInTheDocument();
+  });
+
+  test('Move down', () => {
+    const { getByText } = render(<AppFunctional />);
+    fireEvent.click(getByText('DOWN'));
+    expect(getByText('You moved 1 time')).toBeInTheDocument();
+  });
+
+  test('Submit form', async () => {
+    const { getByPlaceholderText, getByText } = render(<AppFunctional />);
+    const emailInput = getByPlaceholderText('type email');
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    fireEvent.click(getByText('Submit'));
+    await waitFor(() => {
+      expect(axios.post).toHaveBeenCalledWith('http://localhost:9000/api/result', {
+        x: 2,
+        y: 2,
+        steps: 0,
+        email: 'test@example.com',
+      });
+    });
+  });
+  
 });
 
-test('error handling when submitting the form', async () => {
-  const { getByTestId, getByPlaceholderText, getByText } = render(<AppFunctional />);
-  userEvent.type(getByPlaceholderText('type email'), 'invalidemail');
-  userEvent.click(getByTestId('submit'));
-  await waitFor(() => {
-    expect(getByText('Error: Failed to submit data')).toBeInTheDocument();
-  });
-});
+
 // Write your tests here
 

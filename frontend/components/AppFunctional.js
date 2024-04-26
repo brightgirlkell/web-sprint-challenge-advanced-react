@@ -86,9 +86,7 @@ export default function AppFunctional(props) {
   };
   axios.post('http://localhost:9000/api/result', payload)
   .then(response => {
-    
     setMessage(response.data.message);
-    
   })
   .catch(error => {
     console.log(error)
@@ -142,7 +140,7 @@ export default function AppFunctional(props) {
           value={email}
           onChange={onChange}
         ></input>
-        <input id="submit" type="submit"></input>
+        <input id="submit" type="submit" value="Submit"></input>
       </form>
     </div>
   );
